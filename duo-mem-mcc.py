@@ -2,10 +2,15 @@ import pandas as pd
 import numpy as np
 from tkinter import *
 from tkinter import messagebox as mb
+import sys
 
 
 class Quiz:
 	def __init__(self, n):
+
+		self.gui = Tk()
+		self.gui.geometry("300x400")
+		self.gui.title("Duo+Memrise Quiz")
 		
 		self.q_no = 0
 		self.total_q = n
@@ -13,12 +18,9 @@ class Quiz:
 		self.wrong_list=[]
 		
 		self.display_question()
-
 		self.opt_selected=IntVar()
 		self.opts=self.radio_buttons()
-		
 		self.display_options()
-		
 		self.buttons()		
 
 	def display_result(self):
@@ -34,6 +36,7 @@ class Quiz:
 		if self.opt_selected.get() == answer[q_no]+1:
 			return True
 
+
 	def next_btn(self):
 		
 		if self.check_ans(self.q_no):			
@@ -45,7 +48,7 @@ class Quiz:
 		
 		if self.q_no==self.total_q:
 			self.display_result()
-			gui.destroy()
+			self.gui.destroy()
 		else:
 			self.display_question()
 			self.display_options()
@@ -53,7 +56,7 @@ class Quiz:
 
 	def buttons(self):
 		
-		quit_button = Button(gui, text="Quit", command=gui.destroy,
+		quit_button = Button(self.gui, text="Quit", command=self.gui.destroy,
 		width=5,bg="black", fg="black",font=("ariel",16," bold"))
 		
 		quit_button.place(x=100,y=320)
@@ -69,13 +72,13 @@ class Quiz:
 			self.opts[val]['text']=option
 			val+=1
 
-		res = Label(gui, text=f"Score: {self.correct}/{self.q_no}")
+		res = Label(self.gui, text=f"Score: {self.correct}/{self.q_no}")
 		res.place(x=100, y=280)
 
 
 	def display_question(self):
 		
-		q_no = Label(gui, text=question[self.q_no], width=60,
+		q_no = Label(self.gui, text=question[self.q_no], width=60,
 		font=( 'ariel' ,16, 'bold' ), anchor= 'w' )
 		
 		q_no.place(x=70, y=70)
@@ -87,7 +90,7 @@ class Quiz:
 		
 		while len(q_list) < options.shape[1]:
 			
-			radio_btn = Radiobutton(gui,text=" ",variable=self.opt_selected, command=self.next_btn,
+			radio_btn = Radiobutton(self.gui,variable=self.opt_selected, command=self.next_btn,
 			value = len(q_list)+1,font = ("ariel",14))
 			q_list.append(radio_btn)
 	
@@ -95,11 +98,7 @@ class Quiz:
 			y_pos += 30
 		
 		return q_list
-		
 
-gui = Tk()
-gui.geometry("300x400")
-gui.title("Duo+Memrise Quiz")
 
 url = "https://raw.githubusercontent.com/ddundo/norsk/main/data/duomem_dict.csv"
 data = pd.read_csv(url, sep=";").sample(frac=1)
@@ -116,5 +115,7 @@ for ndx in np.ndindex(options.shape[:-1]):
 _ans2d = np.repeat(correct, 4).reshape(-1, 4)
 _, answer = np.where(options == _ans2d)
 
-quiz = Quiz(10)  # 10 questions per quiz
-gui.mainloop()
+n = int(sys.argv[1])  # number of questions per quiz
+
+quiz = Quiz(n)
+quiz.gui.mainloop()
